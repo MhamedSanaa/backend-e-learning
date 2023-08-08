@@ -1,0 +1,10 @@
+H7N5VMTYKZQG76UKSNRYMRMY6O4FCWNJ
+
+K3UF6HHZYTU7IE6QP3VSX77L3V7P335K
+
+curl ^
+  -H "Authorization: Bearer H7N5VMTYKZQG76UKSNRYMRMY6O4FCWNJ" ^
+  "https://api.wit.ai/message?v=20230807&q="
+
+
+  curl -XPOST 'https://api.wit.ai/speech?v=20230215&context=%7B%22reference_time%22%3A%222013-05-01T19%3A05%3A00%22%2C%22timezone%22%3A%22America%2FLos_Angeles%22%7D' -i -L -H "Authorization: Bearer H7N5VMTYKZQG76UKSNRYMRMY6O4FCWNJ" -H "Content-Type: audio/wav" --data-binary "@sample.wav
