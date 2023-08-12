@@ -7,7 +7,7 @@ const { Readable } = require('stream');
 exports.speech2Text = async (req, res) => {
   try {
     const inputBuffer = req.file.buffer;
-
+    
     const outputFilePath = 'output.wav';
 
     const tempInputFilePath = 'input.webm';
@@ -47,24 +47,29 @@ exports.speech2Text = async (req, res) => {
 
     console.log(data, typeof data)
 
-    let k = data?.lastIndexOf('}')
-    if (k > 0) {
-
-      let brackets = 1
-
-      do {
-        k--
-        if (data[k] === "{")
-          brackets--;
-        else if (data[k] === "}")
-          brackets++;
+    let str = ''
+    if(typeof data === 'string'){
+      let k = data?.lastIndexOf('}')
+      if (k > 0) {
+  
+        let brackets = 1
+  
+        do {
+          k--
+          if (data[k] === "{")
+            brackets--;
+          else if (data[k] === "}")
+            brackets++;
+        }
+        while (k > 0 && brackets > 0)
+  
       }
-      while (k > 0 && brackets > 0)
-
+      str = data?.substring(k)
+      res.status(200).json({"text":JSON.parse(str)?.text});
     }
-    let str = data?.substr(k)
+    else res.status(200).json({"text":data.text});
 
-    res.status(200).json(JSON.parse(str)?.text);
+    
   } catch (error) {
     console.error("Error performing speech-to-text with Wit.ai:", error);
     res.status(500).send("Error performing speech-to-text with Wit.ai");
