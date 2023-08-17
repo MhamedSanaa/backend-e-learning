@@ -1,15 +1,17 @@
 const axios = require('axios');
-
-const API_KEY = 'fb7aee3c3958452499cc11cbced32917';
+const config = require("../config/config")
+const VOICE_RSS_KEY = config.VOICE_RSS_KEY;
 
 exports.text2Speech = async (req, res) => {
-    const text = req.body.text;
-    const lang = 'en-gb';
-    const speed = 0;
-    const format = 'wav';
-    const hz= '48khz_16bit_mono'
+    console.log(req.body.text)
+    const text = req.body.text || "no text";
+    const lang = req.body.lang || 'en-gb';
+    const speed = req.body.speed || 0;
+    const format = req.body.format ||'wav';
+    const hz= req.body.hz || '48khz_16bit_mono'
 
-    const url = `http://api.voicerss.org/?key=${API_KEY}&hl=${lang}&src=${encodeURIComponent(text)}&r=${speed}&c=${format}&f=${hz}`;
+    console.log(text,lang,speed,format,hz)
+    const url = `http://api.voicerss.org/?key=${VOICE_RSS_KEY}&hl=${lang}&src=${encodeURIComponent(text)}&r=${speed}&c=${format}&f=${hz}`;
 
     try {
         const response = await axios({
