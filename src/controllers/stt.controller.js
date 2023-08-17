@@ -1,8 +1,8 @@
 const axios = require('axios');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
-const WIT_TOKEN = 'H7N5VMTYKZQG76UKSNRYMRMY6O4FCWNJ';
-const { Readable } = require('stream');
+const config = require("../config/config")
+const WIT_TOKEN = config.WIT_TOKEN;
 
 exports.speech2Text = async (req, res) => {
   try {

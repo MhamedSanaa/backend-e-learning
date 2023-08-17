@@ -13,12 +13,11 @@
     "@ffmpeg/ffmpeg": "^0.12.2",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "firebase-admin": "^11.10.1",
     "fluent-ffmpeg": "^2.1.2",
-    "google-tts-api": "^2.0.2",
-    "multer": "^1.4.5-lts.1",
-    "voice-rss": "^3.0.0",
-    "wit": "^0.0.0"
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
