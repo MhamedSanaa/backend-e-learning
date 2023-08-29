@@ -28,7 +28,9 @@ exports.convertAudio = async (audioBuffer) => {
                 .run();
         });
 
-        return fs.readFileSync(outputFilePath);
+        const buf = fs.readFileSync(outputFilePath);
+        fs.unlinkSync(outputFilePath);
+        return buf
     } catch (error) {
         console.error("Error converting audio:", error);
         throw new Error("Error converting audio");
