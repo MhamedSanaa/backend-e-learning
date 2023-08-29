@@ -32,7 +32,6 @@ exports.getDictation = async (req, res) => {
     const audioData = await ttsService.generateAudio(text);
 
     res.set('Content-Type', 'audio/mpeg');
-    res.set('Cache-Control', 'public, max-age=300');
 
     res.status(200).send(audioData);
 };
