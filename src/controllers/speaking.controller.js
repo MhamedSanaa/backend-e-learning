@@ -1,6 +1,8 @@
 const speakingService = require('../services/speaking.service');
 const ttsService = require('../services/tts.service');
 const sttService = require('../services/stt.service');
+const soundex = require('soundex');
+
 
 const speakingActivity = require('../activities/speakingActivity')
 var stringSimilarity = require("string-similarity");
@@ -35,23 +37,36 @@ exports.getSpeaking = async (req, res) => {
 
 exports.postResponse = async (req, res) => {
     //const user = req.user;
-    console.log(req.file)
     try {
         const inputBuffer = req.file.buffer;
         const convertedAudio = await sttService.convertAudio(inputBuffer);
         const recognitionResult = await sttService.recognizeSpeech(convertedAudio);
         const processedText = sttService.processRecognitionResult(recognitionResult);
-        
+
         const questionIndex = await speakingService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
 
-        console.log(processedText)
+        console.log("Response : " + processedText)
         // similarity
-        var similarity = stringSimilarity.compareTwoStrings(processedText?.toLowerCase().trim(), speakingActivity.questions[questionIndex]?.toLowerCase().trim(),);
+        var textSim = stringSimilarity.compareTwoStrings(processedText?.toLowerCase().trim(), speakingActivity.questions[questionIndex]?.toLowerCase().trim(),);
 
-        //
+
+
+        const string1 = processedText?.toLowerCase().trim();
+        const string2 = speakingActivity.questions[questionIndex]?.toLowerCase().trim();
+
+
+        const soundex1 = soundex(string1)
+        const soundex2 = soundex(string2)
+
+        const soundSim = stringSimilarity.compareTwoStrings(soundex1?.toLowerCase().trim(), soundex2?.toLowerCase().trim())
+
+        const similarity = Math.max(soundSim, textSim)
+        console.log("Sim : ",soundSim,textSim)
+        console.log(similarity)
+
         const questionNumber = await speakingService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
         const finished = questionNumber > 9
-        const passed = similarity > 0.95
+        const passed = similarity > 0.66
         const text = speakingActivity.questions[questionIndex]
         if (passed) {
             await speakingService.updateScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
