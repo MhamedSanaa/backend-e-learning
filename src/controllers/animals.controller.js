@@ -99,5 +99,4 @@ exports.postResponse = async (req, res) => {
         console.error("Error performing speech-to-text with Wit.ai:", error);
         res.status(500).send("Error performing speech-to-text with Wit.ai");
     }
-
 };

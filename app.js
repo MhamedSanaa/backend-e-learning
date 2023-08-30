@@ -17,6 +17,7 @@ const userRouter = require('./src/routes/user.route');
 const dictationRouter = require('./src/routes/dictation.route');
 const speakingRouter = require('./src/routes/speaking.route');
 const animalsRouter = require('./src/routes/animals.route');
+const hangmanRouter = require('./src/routes/hangman.route');
 
 
 
@@ -29,7 +30,7 @@ app.use("/user", userRouter)
 app.use("/dictation", dictationRouter)
 app.use("/speaking", speakingRouter)
 app.use("/animals", animalsRouter)
-
+app.use("/hangman",hangmanRouter)
 //Hello world
 app.get('/', (req, res) => {
   res.send('Hello World!')
