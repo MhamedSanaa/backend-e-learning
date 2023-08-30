@@ -11,7 +11,7 @@ exports.isAuthenticated = async (req, res, next) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken.split(' ')[1]);
     req.user = decodedToken;
-    //console.log(idToken)
+    console.log(idToken)
     next();
     
   } catch (error) {
