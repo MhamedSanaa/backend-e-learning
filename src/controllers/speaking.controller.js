@@ -65,7 +65,7 @@ exports.postResponse = async (req, res) => {
         console.log(similarity)
 
         const questionNumber = await speakingService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
-        const finished = questionNumber > 9
+        const finished = questionNumber > 2
         const passed = similarity > 0.66
         const text = speakingActivity.questions[questionIndex]
         if (passed) {
