@@ -16,6 +16,7 @@ const sttRouter = require('./src/routes/stt.route');
 const userRouter = require('./src/routes/user.route');
 const dictationRouter = require('./src/routes/dictation.route');
 const speakingRouter = require('./src/routes/speaking.route');
+const animalsRouter = require('./src/routes/animals.route');
 
 
 
@@ -27,6 +28,7 @@ app.use("/tts", ttsRouter)
 app.use("/user", userRouter)
 app.use("/dictation", dictationRouter)
 app.use("/speaking", speakingRouter)
+app.use("/animals", animalsRouter)
 
 //Hello world
 app.get('/', (req, res) => {
