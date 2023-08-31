@@ -9,41 +9,41 @@ var stringSimilarity = require("string-similarity");
 
 
 exports.startSpeaking = (req, res) => {
-    //const user = req.user;
-    speakingService.updateQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72", 10);
+    const userId = req.user.uid
+    speakingService.updateQuestionIndex(userId, 10);
     res.status(200).send('Data saved successfully.');
 };
 
 exports.resetSpeaking = async (req, res) => {
-    //const user = req.user;
-    await speakingService.resetScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
-    await speakingService.resetQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+    const userId = req.user.uid
+    await speakingService.resetScore(userId)
+    await speakingService.resetQuestionNumber(userId)
     //speakingService.updateQuestionIndex(user.user_id, 0);
     res.status(200).send('Data saved successfully.');
 };
 
 exports.getSpeaking = async (req, res) => {
 
-    //const user = req.user;
+    const userId = req.user.uid
 
-    var questionIndex = await speakingService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
-    await speakingService.updateQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72", questionIndex + 1 >= speakingActivity.questions.length ? 0 : questionIndex + 1)
-    questionIndex = await speakingService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
-    await speakingService.updateQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72", await speakingService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72") + 1)
+    var questionIndex = await speakingService.getQuestionIndex(userId);
+    await speakingService.updateQuestionIndex(userId, questionIndex + 1 >= speakingActivity.questions.length ? 0 : questionIndex + 1)
+    questionIndex = await speakingService.getQuestionIndex(userId);
+    await speakingService.updateQuestionNumber(userId, await speakingService.getQuestionNumber(userId) + 1)
 
     const text = speakingActivity.questions[questionIndex]
     res.status(200).send({ text: text });
 };
 
 exports.postResponse = async (req, res) => {
-    //const user = req.user;
+    const userId = req.user.uid
     try {
         const inputBuffer = req.file.buffer;
         const convertedAudio = await sttService.convertAudio(inputBuffer);
         const recognitionResult = await sttService.recognizeSpeech(convertedAudio);
         const processedText = sttService.processRecognitionResult(recognitionResult);
 
-        const questionIndex = await speakingService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
+        const questionIndex = await speakingService.getQuestionIndex(userId);
 
         console.log("Response : " + processedText)
         // similarity
@@ -64,17 +64,18 @@ exports.postResponse = async (req, res) => {
         console.log("Sim : ",soundSim,textSim)
         console.log(similarity)
 
-        const questionNumber = await speakingService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
+        
+        const questionNumber = await speakingService.getQuestionNumber(userId);
         const finished = questionNumber > 2
         const passed = similarity > 0.66
         const text = speakingActivity.questions[questionIndex]
         if (passed) {
-            await speakingService.updateScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+            await speakingService.updateScore(userId)
         }
-        const score = (await speakingService.getScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")).score
+        const score = (await speakingService.getScore(userId)).score
 
         if (finished) {
-            await speakingService.resetScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+            await speakingService.resetScore(userId)
         }
         res.status(200).send({ text: text, similarity: similarity, passed: passed, finished: finished, score: score });
 

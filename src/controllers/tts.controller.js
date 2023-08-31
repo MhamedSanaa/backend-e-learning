@@ -7,6 +7,7 @@ exports.text2Speech = async (req, res) => {
     const format = req.body.format ||'wav';
     const hz = req.body.hz || '48khz_16bit_mono';
 
+    
     try {
         const audioData = await ttsService.generateAudio(text, lang, speed, format, hz);
 

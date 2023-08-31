@@ -9,6 +9,7 @@ exports.speech2Text = async (req, res) => {
     const recognitionResult = await sttService.recognizeSpeech(convertedAudio);
     const processedText = sttService.processRecognitionResult(recognitionResult);
 
+    
     console.log("stt result : ",processedText)
     res.status(200).json({ "text": processedText });
  

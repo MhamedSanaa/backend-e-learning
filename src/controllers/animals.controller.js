@@ -49,6 +49,7 @@ exports.getAnimals = async (req, res) => {
       } catch (err) {
         res.status(500).send({ error: 'Error' });
       }
+      
 
 };
 

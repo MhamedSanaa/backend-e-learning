@@ -18,6 +18,8 @@ exports.joinRoom = async (req, res) => {
     else{
         res.status(404).send(joined)
     }
+
+    
 }
 exports.sendResponse = async (req, res) => {
     const userId = req.user.uid;
