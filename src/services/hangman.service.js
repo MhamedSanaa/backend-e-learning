@@ -25,10 +25,11 @@ exports.createRoom = async (userId) => {
         hiddenWord: hiddenWord,
         shuffledNumbers : positions,
         tryIndex : 0,
+        gameOver : false,
         messages: [
             {
                 text: `${userId} joined.`,
-                sender: `${userId}`
+                sender: `admin`
             }
         ],
 
@@ -56,7 +57,7 @@ exports.joinRoom = async (userId, code) => {
                 players: admin.firestore.FieldValue.arrayUnion(userId),
                 messages: admin.firestore.FieldValue.arrayUnion({
                     text: `${userId} joined.`,
-                    sender: `${userId}`
+                    sender: `admin`
                 }
                 )
             })
@@ -88,11 +89,12 @@ exports.sendResponse = async (userId, code, msg) => {
     const docRef = db.collection('hangmanRoom').doc("" + code);
     const data = await roomData(code)
     const word = data.word
-
+    var gameOver = data.gameOver
 
     var hiddenWord = data.hiddenWord
+
     var currentPlayerIndex=data.currentPlayerIndex
-    if (await roomExists(code) && data.locked && data.currentPlayer === userId) {
+    if (await roomExists(code) && data.locked && data.currentPlayer === userId && !gameOver) {
         await docRef.update({
             messages: admin.firestore.FieldValue.arrayUnion({
                 text : `${message}.`,
@@ -100,25 +102,46 @@ exports.sendResponse = async (userId, code, msg) => {
             })
         })
         if (message === word) {
-            await docRef.set({ winner: userId }, { merge: true })
             hiddenWord = word
 
+            await docRef.update({
+                winner: userId,
+                gameOver : true,
+                messages: admin.firestore.FieldValue.arrayUnion({
+                    text: `${userId} Wins.`,
+                    sender: `admin`
+                }
+                )
+            })
+
         }
+        
+        
         else{
-            hiddenWord[data.shuffledNumbers[data.tryIndex]] = word[data.shuffledNumbers[data.tryIndex]]
-
             hiddenWord = hiddenWord.substr(0, data.shuffledNumbers[data.tryIndex]) + word[data.shuffledNumbers[data.tryIndex]] + hiddenWord.substr(data.shuffledNumbers[data.tryIndex] + 1);
-            console.log("hdn",hiddenWord)
+            gameOver = hiddenWord === word
 
+            if(gameOver){
+                await docRef.update({
+                    gameOver : true,
+                    messages: admin.firestore.FieldValue.arrayUnion({
+                        text: `Game over, no winner.`,
+                        sender: `admin`
+                    }
+                    )
+                })
+            }
         }
 
         currentPlayerIndex = currentPlayerIndex == 0 ? 1 : 0 
+
 
         await docRef.set({
             currentPlayer: data.players[currentPlayerIndex],
             currentPlayerIndex : currentPlayerIndex,
             tryIndex : data.tryIndex+1,
-            hiddenWord : hiddenWord
+            hiddenWord : hiddenWord,
+            gameOver : gameOver
         },
             { merge: true });
         
