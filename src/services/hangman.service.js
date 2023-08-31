@@ -82,11 +82,12 @@ exports.joinRoom = async (userId, code) => {
 }
 
 
-exports.sendResponse = async (userId, code, message) => {
+exports.sendResponse = async (userId, code, msg) => {
     console.log(code)
-    const word = message.toLowerCase()
+    const message = msg.toLowerCase()
     const docRef = db.collection('hangmanRoom').doc("" + code);
     const data = await roomData(code)
+    const word = data.word
 
 
     var hiddenWord = data.hiddenWord
@@ -94,17 +95,20 @@ exports.sendResponse = async (userId, code, message) => {
     if (await roomExists(code) && data.locked && data.currentPlayer === userId) {
         await docRef.update({
             messages: admin.firestore.FieldValue.arrayUnion({
-                text : `${word}.`,
+                text : `${message}.`,
                 sender : `${userId}`
             })
         })
-        if (message === data.word) {
+        if (message === word) {
             await docRef.set({ winner: userId }, { merge: true })
             hiddenWord = word
 
         }
         else{
             hiddenWord[data.shuffledNumbers[data.tryIndex]] = word[data.shuffledNumbers[data.tryIndex]]
+
+            hiddenWord = hiddenWord.substr(0, data.shuffledNumbers[data.tryIndex]) + word[data.shuffledNumbers[data.tryIndex]] + hiddenWord.substr(data.shuffledNumbers[data.tryIndex] + 1);
+            console.log("hdn",hiddenWord)
 
         }
 
