@@ -103,10 +103,10 @@ exports.sendResponse = async (userId, code, msg) => {
         })
         if (message === word) {
             hiddenWord = word
-
+            gameOver = true
             await docRef.update({
                 winner: userId,
-                gameOver : true,
+                gameOver : gameOver,
                 messages: admin.firestore.FieldValue.arrayUnion({
                     text: `${userId} Wins.`,
                     sender: `admin`
