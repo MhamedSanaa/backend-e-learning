@@ -4,9 +4,9 @@ const authMiddleware = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/start', dictationController.startDictation);
-router.get('/get', dictationController.getDictation);
-router.get('/reset', dictationController.resetDictation);
-router.post('/respond', dictationController.postResponse);
+router.get('/start',authMiddleware.isAuthenticated, dictationController.startDictation);
+router.get('/get',authMiddleware.isAuthenticated, dictationController.getDictation);
+router.get('/reset',authMiddleware.isAuthenticated, dictationController.resetDictation);
+router.post('/respond',authMiddleware.isAuthenticated, dictationController.postResponse);
 
 module.exports = router;

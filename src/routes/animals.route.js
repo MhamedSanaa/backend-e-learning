@@ -6,9 +6,9 @@ const upload = multer();
 
 const router = express.Router();
 
-router.get('/start', animalsController.startAnimals);
-router.get('/get', animalsController.getAnimals);
-router.get('/reset', animalsController.resetAnimals);
-router.post('/respond',upload.single('audio'), animalsController.postResponse);
+router.get('/start',authMiddleware.isAuthenticated, animalsController.startAnimals);
+router.get('/get',authMiddleware.isAuthenticated, animalsController.getAnimals);
+router.get('/reset',authMiddleware.isAuthenticated, animalsController.resetAnimals);
+router.post('/respond',authMiddleware.isAuthenticated, upload.single('audio'), animalsController.postResponse);
 
 module.exports = router;

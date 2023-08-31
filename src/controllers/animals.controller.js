@@ -11,27 +11,27 @@ var stringSimilarity = require("string-similarity");
 
 
 exports.startAnimals = (req, res) => {
-    //const user = req.user;
-    animalsService.updateQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72", 10);
+    const userId = req.user.uid
+    animalsService.updateQuestionIndex(userId, 10);
     res.status(200).send('Data saved successfully.');
 };
 
 exports.resetAnimals = async (req, res) => {
-    //const user = req.user;
-    await animalsService.resetScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
-    await animalsService.resetQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+    const userId = req.user.uid
+    await animalsService.resetScore(userId)
+    await animalsService.resetQuestionNumber(userId)
     //animalsService.updateQuestionIndex(user.user_id, 0);
     res.status(200).send('Data saved successfully.');
 };
 
 exports.getAnimals = async (req, res) => {
 
-    //const user = req.user;
+    const userId = req.user.uid
 
-    var questionIndex = await animalsService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
-    await animalsService.updateQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72", questionIndex + 1 >= animalsActivity.questions.length ? 0 : questionIndex + 1)
-    questionIndex = await animalsService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
-    await animalsService.updateQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72", await animalsService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72") + 1)
+    var questionIndex = await animalsService.getQuestionIndex(userId);
+    await animalsService.updateQuestionIndex(userId, questionIndex + 1 >= animalsActivity.questions.length ? 0 : questionIndex + 1)
+    questionIndex = await animalsService.getQuestionIndex(userId);
+    await animalsService.updateQuestionNumber(userId, await animalsService.getQuestionNumber(userId) + 1)
 
     const text = animalsActivity.questions[questionIndex]
     
@@ -53,14 +53,14 @@ exports.getAnimals = async (req, res) => {
 };
 
 exports.postResponse = async (req, res) => {
-    //const user = req.user;
+    const userId = req.user.uid
     try {
         const inputBuffer = req.file.buffer;
         const convertedAudio = await sttService.convertAudio(inputBuffer);
         const recognitionResult = await sttService.recognizeSpeech(convertedAudio);
         const processedText = sttService.processRecognitionResult(recognitionResult);
 
-        const questionIndex = await animalsService.getQuestionIndex("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
+        const questionIndex = await animalsService.getQuestionIndex(userId);
 
         console.log("Response : " + processedText)
         // similarity
@@ -81,17 +81,17 @@ exports.postResponse = async (req, res) => {
         console.log("Sim : ",soundSim,textSim)
         console.log(similarity)
 
-        const questionNumber = await animalsService.getQuestionNumber("OPAvpYNf9AQJ82qN4VYQAQnjYn72");
+        const questionNumber = await animalsService.getQuestionNumber(userId);
         const finished = questionNumber > 4
         const passed = similarity > 0.66
         const text = animalsActivity.questions[questionIndex]
         if (passed) {
-            await animalsService.updateScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+            await animalsService.updateScore(userId)
         }
-        const score = (await animalsService.getScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")).score
+        const score = (await animalsService.getScore(userId)).score
 
         if (finished) {
-            await animalsService.resetScore("OPAvpYNf9AQJ82qN4VYQAQnjYn72")
+            await animalsService.resetScore(userId)
         }
         res.status(200).send({ text: text, similarity: similarity, passed: passed, finished: finished, score: score });
 

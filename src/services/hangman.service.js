@@ -92,14 +92,17 @@ exports.sendResponse = async (userId, code, msg) => {
     var gameOver = data.gameOver
 
     var hiddenWord = data.hiddenWord
+    const messages = data.messages
 
     var currentPlayerIndex=data.currentPlayerIndex
     if (await roomExists(code) && data.locked && data.currentPlayer === userId && !gameOver) {
+
+        messages.push({
+            text : `${message}.`,
+            sender : `${userId}`
+        })
         await docRef.update({
-            messages: admin.firestore.FieldValue.arrayUnion({
-                text : `${message}.`,
-                sender : `${userId}`
-            })
+            messages: messages
         })
         if (message === word) {
             hiddenWord = word

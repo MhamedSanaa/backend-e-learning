@@ -6,9 +6,9 @@ const upload = multer();
 
 const router = express.Router();
 
-router.get('/start', speakingController.startSpeaking);
-router.get('/get', speakingController.getSpeaking);
-router.get('/reset', speakingController.resetSpeaking);
-router.post('/respond',upload.single('audio'), speakingController.postResponse);
+router.get('/start',authMiddleware.isAuthenticated, speakingController.startSpeaking);
+router.get('/get',authMiddleware.isAuthenticated, speakingController.getSpeaking);
+router.get('/reset',authMiddleware.isAuthenticated, speakingController.resetSpeaking);
+router.post('/respond',authMiddleware.isAuthenticated, upload.single('audio'), speakingController.postResponse);
 
 module.exports = router;
