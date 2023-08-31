@@ -9,11 +9,22 @@ exports.createRoom = async (userId) => {
 
     const questionIndex = Math.floor(Math.random() * (hangmanActivity.questions.length));
     const word = hangmanActivity.questions[questionIndex]
+    var hiddenWord = ""
+
+    for (let i of word){
+        hiddenWord += "-"
+    }
+
+    const positions = shuffledNumbers(word.length)
+
     await docRef.set({
         word: word.toLowerCase(),
         code: code,
         owner: userId,
         players: [userId],
+        hiddenWord: hiddenWord,
+        shuffledNumbers : positions,
+        tryIndex : 0,
         messages: [
             {
                 text: `${userId} joined.`,
@@ -22,7 +33,8 @@ exports.createRoom = async (userId) => {
         ],
 
         locked: false,
-        currentPlayer: userId
+        currentPlayer: userId,
+        currentPlayerIndex:0,
     },
         { merge: true });
 
@@ -37,7 +49,7 @@ exports.joinRoom = async (userId, code) => {
         const locked = data.locked
         console.log("locked : ", locked)
         if (locked) {
-            return false
+            return {joined : false,code:code}
         }
         else {
             await docRef.update({
@@ -60,11 +72,11 @@ exports.joinRoom = async (userId, code) => {
                 currentPlayerIndex
             })
 
-            return true
+            return {joined : true,code:code}
         }
     }
     else {
-        return false
+        return {joined : false,code:code}
     }
 
 }
@@ -75,6 +87,10 @@ exports.sendResponse = async (userId, code, message) => {
     const word = message.toLowerCase()
     const docRef = db.collection('hangmanRoom').doc("" + code);
     const data = await roomData(code)
+
+
+    var hiddenWord = data.hiddenWord
+    var currentPlayerIndex=data.currentPlayerIndex
     if (await roomExists(code) && data.locked && data.currentPlayer === userId) {
         await docRef.update({
             messages: admin.firestore.FieldValue.arrayUnion({
@@ -84,7 +100,24 @@ exports.sendResponse = async (userId, code, message) => {
         })
         if (message === data.word) {
             await docRef.set({ winner: userId }, { merge: true })
+            hiddenWord = word
+
         }
+        else{
+            hiddenWord[data.shuffledNumbers[data.tryIndex]] = word[data.shuffledNumbers[data.tryIndex]]
+
+        }
+
+        currentPlayerIndex = currentPlayerIndex == 0 ? 1 : 0 
+
+        await docRef.set({
+            currentPlayer: data.players[currentPlayerIndex],
+            currentPlayerIndex : currentPlayerIndex,
+            tryIndex : data.tryIndex+1,
+            hiddenWord : hiddenWord
+        },
+            { merge: true });
+        
         return true
     }
     return false
@@ -101,4 +134,16 @@ const roomData = async (code) => {
     const docRef = db.collection('hangmanRoom').doc("" + code);
     const doc = await docRef.get()
     return doc.data()
+}
+
+const shuffledNumbers = (n) => {
+    if (n <= 0) {
+        return [];
+    }
+    const numbers = Array.from({ length: n }, (_, index) => index);
+    for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+    return numbers;
 }
