@@ -16,7 +16,8 @@ exports.createRoom = async (userId) => {
         players: [userId],
         messages: [
             {
-                [`${userId}`]: `${userId} joined.`
+                text: `${userId} joined.`,
+                sender: `${userId}`
             }
         ],
 
@@ -41,7 +42,11 @@ exports.joinRoom = async (userId, code) => {
         else {
             await docRef.update({
                 players: admin.firestore.FieldValue.arrayUnion(userId),
-                messages: admin.firestore.FieldValue.arrayUnion({[`${userId}`]: `${userId} joined.`})
+                messages: admin.firestore.FieldValue.arrayUnion({
+                    text: `${userId} joined.`,
+                    sender: `${userId}`
+                }
+                )
             })
             await docRef.set({
                 locked: true,
@@ -66,15 +71,19 @@ exports.joinRoom = async (userId, code) => {
 
 
 exports.sendResponse = async (userId, code, message) => {
+    console.log(code)
     const word = message.toLowerCase()
     const docRef = db.collection('hangmanRoom').doc("" + code);
     const data = await roomData(code)
     if (await roomExists(code) && data.locked && data.currentPlayer === userId) {
         await docRef.update({
-            messages: admin.firestore.FieldValue.arrayUnion({[`${userId}`]: `${userId} : ${word}.`})
+            messages: admin.firestore.FieldValue.arrayUnion({
+                text : `${word}.`,
+                sender : `${userId}`
+            })
         })
-        if(message === data.word){
-            await docRef.set({ winner : userId }, { merge: true })
+        if (message === data.word) {
+            await docRef.set({ winner: userId }, { merge: true })
         }
         return true
     }
