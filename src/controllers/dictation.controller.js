@@ -44,8 +44,8 @@ exports.postResponse = async (req, res) => {
     var similarity = stringSimilarity.compareTwoStrings(resp?.toLowerCase().trim(), dictationActivity.questions[questionIndex]?.toLowerCase().trim(),);
     
     const questionNumber = await dictationService.getQuestionNumber(userId);
-    const finished = questionNumber > 3
-    const passed = similarity > 0.95
+    const finished = questionNumber > 4
+    const passed = similarity > 0.99
     const text = dictationActivity.questions[questionIndex]
     if (passed) {
         await dictationService.updateScore(userId)

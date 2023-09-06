@@ -83,7 +83,7 @@ exports.postResponse = async (req, res) => {
         console.log(similarity)
 
         const questionNumber = await animalsService.getQuestionNumber(userId);
-        const finished = questionNumber > 4
+        const finished = questionNumber > 3
         const passed = similarity > 0.66
         const text = animalsActivity.questions[questionIndex]
         if (passed) {

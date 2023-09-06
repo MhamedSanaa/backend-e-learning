@@ -5,6 +5,10 @@ const db = admin.firestore();
 exports.createRoom = async (userId) => {
     const code = Math.floor(Math.random() * (1000000 + 100) - 100);
 
+
+    
+
+
     const docRef = db.collection('hangmanRoom').doc("" + code);
 
     const questionIndex = Math.floor(Math.random() * (hangmanActivity.questions.length));
@@ -15,7 +19,11 @@ exports.createRoom = async (userId) => {
         hiddenWord += "-"
     }
 
+
     const positions = shuffledNumbers(word.length)
+
+
+    hiddenWord = hiddenWord.substr(0, positions[0]) + word[positions[0]] + hiddenWord.substr(positions[0] + 1);
 
     await docRef.set({
         word: word.toLowerCase(),
@@ -177,3 +185,20 @@ const shuffledNumbers = (n) => {
     }
     return numbers;
 }
+
+const deleteRoomsByOwner = async (userId) => {
+    const querySnapshot = await db.collection('hangmanRoom').where('owner', '==', userId).get();
+  
+    const batch = db.batch();
+  
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+  
+    try {
+      await batch.commit();
+      console.log(`Rooms owned by ${userId} deleted successfully.`);
+    } catch (error) {
+      console.error('Error deleting rooms:', error);
+    }
+  };
